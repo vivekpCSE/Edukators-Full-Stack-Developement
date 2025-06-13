@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> To-Do List</title>
+  <style>
+    body { font-family: Arial; max-width: 500px; margin: auto; padding: 20px; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 8px; border-bottom: 1px solid #ccc; display: flex; justify-content: space-between; align-items: center; }
+    .completed { text-decoration: line-through; color: gray; }
+    button { margin-left: 5px; }
+  </style>
+</head>
+<body>
+  <h2>My To-Do List</h2>
+  <input type="text" id="taskInput" placeholder="New task...">
+  <button onclick="addTask()">Add</button>
+  <ul id="taskList"></ul>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function showTasks() {
+      const list = document.getElementById("taskList");
+      list.innerHTML = "";
+
+      tasks.forEach((task, index) => {
+        const li = document.createElement("li");
+
+        const span = document.createElement("span");
+        span.textContent = task.text;
+        if (task.completed) span.classList.add("completed");
+        span.onclick = () => {
+          task.completed = !task.completed;
+          saveTasks();
+          showTasks();
+        };
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.onclick = () => {
+          const newText = prompt("Edit task:", task.text);
+          if (newText) {
+            task.text = newText;
+            saveTasks();
+            showTasks();
+          }
+        };
+
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "Delete";
+        delBtn.onclick = () => {
+          tasks.splice(index, 1);
+          saveTasks();
+          showTasks();
+        };
+
+        li.appendChild(span);
+        li.appendChild(editBtn);
+        li.appendChild(delBtn);
+        list.appendChild(li);
+      });
+    }
+
+    function addTask() {
+      const input = document.getElementById("taskInput");
+      const text = input.value.trim();
+      if (text) {
+        tasks.push({ text: text, completed: false });
+        input.value = "";
+        saveTasks();
+        showTasks();
+      }
+    }
+
+    showTasks();
+  </script>
+</body>
+</html>
